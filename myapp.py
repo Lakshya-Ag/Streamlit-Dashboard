@@ -24,7 +24,7 @@ companies = {}
 # for index, row in df.iterrows():
 #   companies[row[0]] = row[1]
 
-xls = xlrd.open_workbook("cname.xlsx")
+xls = xlrd.open_workbook("cname.xls")
 sh = xls.sheet_by_index(0)
 for i in range(505):
     cell_value_class = sh.cell(i,0).value
