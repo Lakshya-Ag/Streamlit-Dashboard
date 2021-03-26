@@ -1,10 +1,10 @@
 import pandas as pd
 import streamlit as st
 import yfinance as yf
-import seaborn as sns
+# import seaborn as sns
 import plotly.graph_objs as go
-import matplotlib.pyplot as plt
-import matplotlib.animation as ani
+# import matplotlib.pyplot as plt
+# import matplotlib.animation as ani
 
 
 companies = {"Tesla":"TSLA","Apple":"AAPL","Google":"GOOGL","Microsoft":"MSFT","Amazon":"AMZN",
