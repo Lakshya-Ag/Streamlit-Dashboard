@@ -1,3 +1,4 @@
+import xlrd
 import pandas as pd
 import streamlit as st
 import yfinance as yf
@@ -7,28 +8,28 @@ import plotly.graph_objs as go
 # import matplotlib.animation as ani
 
 
-companies = {"Tesla":"TSLA","Apple":"AAPL","Google":"GOOGL","Microsoft":"MSFT","Amazon":"AMZN",
-             "Facebook":"FB","Alibaba":"BABA","Berkshire Hathway":"BRK.A","Visa":"V","JPMorgan Chase":"JPM",
-             "Johnson & Johnson":"JNJ","Mastercard":"MA","Disney":"DIS","Walmart":"WMT","Taiwan Semiconductor":"TSM",
-             "United Health":"UNH","Bank of America":"BAC","Procter & Gamble":"PG","NVIDIA":"NVDA","Home Depot":"HD",
-             "PayPal":"PYPL","ExxonMobil":"XOM","Comcast":"CMCSA","Intel":"INTC","Verizon":"VZ",
-             "Coca Cola":"KO","Netflix":"NFLX","AT&T":"T","Oracle":"ORCL","Nike":"NKE","Chevron":"CVX",
-             "ASML":"ASML","Toyota":"TM","Abbott Laboratories":"ABT","Adobe":"ADBE","Cisco Systems":"CSCO",
-             "Eli Lilly":"LLY","Pfizer":"PFE","Salesforce":"CRM","Novartis AG":"NVS","Merck":"MRK",
-             "AbbVie":"ABBV","Pepsi":"PEP","Thermo Fischer Scientific":"TMO","Boardcom":"AVGO","Pinduoduo":"PDD",
-             "Royal Dutch Shell":"RDS.A","Accenture":"ACN","Wells Fargo":"WFC","T-Mobile US":"TMUS"}
+# companies = {"Tesla":"TSLA","Apple":"AAPL","Google":"GOOGL","Microsoft":"MSFT","Amazon":"AMZN",
+#              "Facebook":"FB","Alibaba":"BABA","Berkshire Hathway":"BRK.A","Visa":"V","JPMorgan Chase":"JPM",
+#              "Johnson & Johnson":"JNJ","Mastercard":"MA","Disney":"DIS","Walmart":"WMT","Taiwan Semiconductor":"TSM",
+#              "United Health":"UNH","Bank of America":"BAC","Procter & Gamble":"PG","NVIDIA":"NVDA","Home Depot":"HD",
+#              "PayPal":"PYPL","ExxonMobil":"XOM","Comcast":"CMCSA","Intel":"INTC","Verizon":"VZ",
+#              "Coca Cola":"KO","Netflix":"NFLX","AT&T":"T","Oracle":"ORCL","Nike":"NKE","Chevron":"CVX",
+#              "ASML":"ASML","Toyota":"TM","Abbott Laboratories":"ABT","Adobe":"ADBE","Cisco Systems":"CSCO",
+#              "Eli Lilly":"LLY","Pfizer":"PFE","Salesforce":"CRM","Novartis AG":"NVS","Merck":"MRK",
+#              "AbbVie":"ABBV","Pepsi":"PEP","Thermo Fischer Scientific":"TMO","Boardcom":"AVGO","Pinduoduo":"PDD",
+#              "Royal Dutch Shell":"RDS.A","Accenture":"ACN","Wells Fargo":"WFC","T-Mobile US":"TMUS"}
 
-# companies = {}
+companies = {}
 # df = pd.read_excel('cname.xlsx')
 # for index, row in df.iterrows():
 #   companies[row[0]] = row[1]
 
-# xls = xlrd.open_workbook("cname.xlsx")
-# sh = xls.sheet_by_index(0)
-# for i in range(505):
-#     cell_value_class = sh.cell(i,0).value
-#     cell_value_id = sh.cell(i,1).value
-#     companies[cell_value_class] = cell_value_id
+xls = xlrd.open_workbook("cname.xlsx")
+sh = xls.sheet_by_index(0)
+for i in range(505):
+    cell_value_class = sh.cell(i,0).value
+    cell_value_id = sh.cell(i,1).value
+    companies[cell_value_class] = cell_value_id
 
 ############################################################################
 
