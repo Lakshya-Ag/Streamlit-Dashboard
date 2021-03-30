@@ -1,3 +1,4 @@
+import urllib
 import xlrd
 import pandas as pd
 import numpy as np
@@ -16,15 +17,20 @@ import altair as alt
 ########################################################################################################################
 
 def main():
-
+    readme_text = st.markdown(get_file_content_as_string("README.md"))
     st.sidebar.header("What To Do")
-    app_mode = st.sidebar.selectbox("Select the app mode", ["Cover Page", "Data Analysis", "Prediction"])
+    app_mode = st.sidebar.selectbox("Select the app mode", ["Cover Page", "Data Analysis", "Prediction", "Show the Code"])
     if app_mode == "Cover Page":
         st.sidebar.success("Select Data Analysis or prediction to move on")
     elif app_mode == "Data Analysis":
+        readme_text.empty()
         data_analysis()
     elif app_mode == "Prediction":
+        readme_text.empty()
         prediction()
+    elif app_mode == "Show the Code":
+        readme_text.empty()
+        st.code(get_file_content_as_string("myapp.py"))
 
 ########################################################################################################################
 
@@ -39,10 +45,6 @@ def main():
 #              "AbbVie":"ABBV","Pepsi":"PEP","Thermo Fischer Scientific":"TMO","Boardcom":"AVGO","Pinduoduo":"PDD",
 #              "Royal Dutch Shell":"RDS.A","Accenture":"ACN","Wells Fargo":"WFC","T-Mobile US":"TMUS"}
 
-
-# df = pd.read_excel('cname.xlsx')
-# for index, row in df.iterrows():
-#   companies[row[0]] = row[1]
 
 companies = {}
 xls = xlrd.open_workbook("cname.xls")
@@ -65,6 +67,13 @@ def show_data():
     show = st.sidebar.selectbox("Options", ["Graphs", "Company Data"], 0)
     return show
 # show_data = show_data()
+
+############################################################################
+
+def get_file_content_as_string(path):
+    url = 'https://raw.githubusercontent.com/Lakshya-Ag/Streamlit-Dashboard/master/' + path
+    response = urllib.request.urlopen(url)
+    return response.read().decode("utf-8")
 
 ############################################################################
 
