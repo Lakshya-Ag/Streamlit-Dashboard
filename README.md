@@ -1,2 +1,5 @@
-# Stock Market Analysis
-![Picture](https://miro.medium.com/max/890/1*br3g5RPb4lZp_CvUUpxn4A.jpeg)
+# Stock Market Analysis - Data Science and Machine Learning Capstone
+
+The project demonstrates the analysis of Stock Market data with the use of Data Science and Machine Learning with the interactive Streamlit App.
+
+👈 **Please select _Data Analysis_ or _Prediction_ to proceed**
