@@ -19,8 +19,8 @@ import altair as alt
 def main():
     readme_text = st.markdown(get_file_content_as_string("README.md"))
     st.sidebar.header("What To Do")
-    app_mode = st.sidebar.selectbox("Select the app mode", ["Cover Page", "Data Analysis", "Prediction", "Show the Code"])
-    if app_mode == "Cover Page":
+    app_mode = st.sidebar.selectbox("Select the app mode", ["Home", "Data Analysis", "Prediction", "Show the Code"])
+    if app_mode == "Home":
         st.sidebar.success("Select Data Analysis or prediction to move on")
     elif app_mode == "Data Analysis":
         readme_text.empty()
@@ -33,18 +33,6 @@ def main():
         st.code(get_file_content_as_string("myapp.py"))
 
 ########################################################################################################################
-
-# companies = {"Tesla":"TSLA","Apple":"AAPL","Google":"GOOGL","Microsoft":"MSFT","Amazon":"AMZN",
-#              "Facebook":"FB","Alibaba":"BABA","Berkshire Hathway":"BRK.A","Visa":"V","JPMorgan Chase":"JPM",
-#              "Johnson & Johnson":"JNJ","Mastercard":"MA","Disney":"DIS","Walmart":"WMT","Taiwan Semiconductor":"TSM",
-#              "United Health":"UNH","Bank of America":"BAC","Procter & Gamble":"PG","NVIDIA":"NVDA","Home Depot":"HD",
-#              "PayPal":"PYPL","ExxonMobil":"XOM","Comcast":"CMCSA","Intel":"INTC","Verizon":"VZ",
-#              "Coca Cola":"KO","Netflix":"NFLX","AT&T":"T","Oracle":"ORCL","Nike":"NKE","Chevron":"CVX",
-#              "ASML":"ASML","Toyota":"TM","Abbott Laboratories":"ABT","Adobe":"ADBE","Cisco Systems":"CSCO",
-#              "Eli Lilly":"LLY","Pfizer":"PFE","Salesforce":"CRM","Novartis AG":"NVS","Merck":"MRK",
-#              "AbbVie":"ABBV","Pepsi":"PEP","Thermo Fischer Scientific":"TMO","Boardcom":"AVGO","Pinduoduo":"PDD",
-#              "Royal Dutch Shell":"RDS.A","Accenture":"ACN","Wells Fargo":"WFC","T-Mobile US":"TMUS"}
-
 
 companies = {}
 xls = xlrd.open_workbook("cname.xls")
@@ -106,30 +94,24 @@ def data_analysis():
         return data
     data = data_download()
     show = show_data()
+    df1 = data
+
     if show == "Graphs":
         st.header('Visualization for ' + company)
-        fig = go.Figure()
+        ma = st.slider('Slide to select days for Moving Average', min_value=5, max_value=100)
+        df1['MA'] = df1.Close.rolling(ma).mean()
 
-        fig.add_trace(go.Candlestick(x=data.index,
-                                     open=data['Open'],
-                                     high=data['High'],
-                                     low=data['Low'],
-                                     close=data['Close'],
-                                     name='market data'))
+        fig = go.Figure(data=[go.Candlestick(x=df1.index,
+                                     open=df1['Open'],
+                                     high=df1['High'],
+                                     low=df1['Low'],
+                                     close=df1['Close'],
+                                     name='Market Data'),
+                      go.Scatter(x=list(df1.index), y=list(df1.MA), line=dict(color='blue', width=2), name='Moving Average')])
 
         fig.update_layout(
             title='Live share price evolution',
-            yaxis_title='Stock Price (USD per shares)')
-
-        # button_list = {
-        #     "All":dict(step="all"),
-        #     "30 days":dict(count=30, step="day", stepmode="backward"),
-        #     "60 days":dict(count=60, step="day", stepmode="backward"),
-        #     "90 days":dict(count=90, step="day", stepmode="backward"),
-        #     "120 days":dict(count=120, step="day", stepmode="backward"),
-        #     "150 days":dict(count=150, step="day", stepmode="backward")
-        # }
-        # button = st.sidebar.radio("Radio", list(button_list.keys()))
+            yaxis_title='Stock Price (USD per shares)', width=850, height=550)
 
         fig.update_xaxes(rangeslider_visible=True,
                          rangeselector=dict(
@@ -144,18 +126,131 @@ def data_analysis():
                          ))
         st.plotly_chart(fig)
 
-        st.markdown("### Volume of the stocks")
-        st.line_chart(data['Volume (in millions)'])
-        st.markdown("### Opening prices of the stock")
-        st.line_chart(data['Open'])
-        st.markdown("### High price for the stock")
-        st.line_chart(data['High'])
-        st.markdown("### Lowest price for the stock")
-        st.line_chart(data['Low'])
-        st.markdown("### Closing price of the stock")
-        st.line_chart(data['Close'])
+        # ma = st.slider('Slide to select days for Moving Average', min_value=5, max_value=100)
+        # df1 = yf.download(tickers=companies[company], period='1460d', interval='1d')
+        # df1['MA'] = df1.Close.rolling(ma).mean()
+        # fig0 = go.Figure()
+        # fig0.add_trace(go.Scatter(x=list(df1.index), y=list(df1.MA)))
+        # fig0.update_layout(title_text="Volume of the stock in millions")
+        # fig0.update_xaxes(rangeslider_visible=True)
+        # st.plotly_chart(fig0)
 
-    ############################################################################
+        st.markdown("### Volume of the stocks")
+        st.markdown("Trading volume is a measure of how much of a given financial asset has traded in a period of "
+                    "time. For stocks, volume is measured in the number of shares traded and, for futures and options, "
+                    "it is based on how many contracts have changed hands.")
+
+        # fig1 = go.Figure()
+        # fig1.add_trace(go.Scatter(x=list(data.index), y=list(data['Volume (in millions)'])))
+
+        fig1 = go.Figure([go.Bar(x=data.index, y=data['Volume (in millions)'])])
+        fig1.update_layout(title_text="Volume of the stock in millions", width=850, height=550)
+        fig1.update_xaxes(rangeslider_visible=True,
+                          rangeselector=dict(
+                              buttons=list([
+                                  dict(count=30, label="30D", step="day", stepmode="backward"),
+                                  dict(count=60, label="60D", step="day", stepmode="backward"),
+                                  dict(count=90, label="90D", step="day", stepmode="backward"),
+                                  dict(count=120, label="120D", step="day", stepmode="backward"),
+                                  dict(count=150, label="150D", step="day", stepmode="backward"),
+                                  dict(step="all")
+                              ])
+                          ))
+
+        st.plotly_chart(fig1)
+        st.markdown("### Opening prices of the stock")
+        st.markdown("The opening price is the price at which a security first trades upon the opening of an exchange "
+                    "on a trading day; for example, the National Stock Exchange (NSE) opens at precisely 9:00 a.m. "
+                    "Eastern time. The price of the first trade for any listed stock is its daily opening price. The "
+                    "opening price is an important marker for that day's trading activity, particularly for those "
+                    "interested in measuring short-term results such as day traders.")
+
+        fig2 = go.Figure()
+        fig2.add_trace(go.Scatter(x=list(data.index), y=list(data.Open)))
+        fig2.update_layout(title_text="Opening price of the stock", width=850, height=550)
+        fig2.update_xaxes(rangeslider_visible=True,
+                          rangeselector=dict(
+                              buttons=list([
+                                  dict(count=30, label="30D", step="day", stepmode="backward"),
+                                  dict(count=60, label="60D", step="day", stepmode="backward"),
+                                  dict(count=90, label="90D", step="day", stepmode="backward"),
+                                  dict(count=120, label="120D", step="day", stepmode="backward"),
+                                  dict(count=150, label="150D", step="day", stepmode="backward"),
+                                  dict(step="all")
+                              ])
+                          ))
+
+        st.plotly_chart(fig2)
+
+        st.markdown("### High price for the stock")
+        st.markdown("Today's high refers to a company's intraday high trading price. Today's high is the highest "
+                    "price at which a stock traded during the course of the trading day. Today's high is typically "
+                    "higher than the closing or opening price. More often than not this is higher than the closing "
+                    "price.")
+
+        fig3 = go.Figure()
+        fig3.add_trace(go.Scatter(x=list(data.index), y=list(data.High)))
+        fig3.update_layout(title_text="High price of the stock", width=850, height=550)
+        fig3.update_xaxes(rangeslider_visible=True,
+                          rangeselector=dict(
+                              buttons=list([
+                                  dict(count=30, label="30D", step="day", stepmode="backward"),
+                                  dict(count=60, label="60D", step="day", stepmode="backward"),
+                                  dict(count=90, label="90D", step="day", stepmode="backward"),
+                                  dict(count=120, label="120D", step="day", stepmode="backward"),
+                                  dict(count=150, label="150D", step="day", stepmode="backward"),
+                                  dict(step="all")
+                              ])
+                          ))
+
+        st.plotly_chart(fig3)
+
+        st.markdown("### Lowest price for the stock")
+        st.markdown("Today’s low is a security's intraday low trading price. Today's low is the lowest price at which a"
+                    " stock trades over the course of a trading day. Today's low is typically lower than the opening or"
+                    " closing price, as it is unusual that the lowest price of the day would happen to occur at those "
+                    "particular moments.")
+
+        fig4 = go.Figure()
+        fig4.add_trace(go.Scatter(x=list(data.index), y=list(data.Low)))
+        fig4.update_layout(title_text="Low price of the stock", width=850, height=550)
+        fig4.update_xaxes(rangeslider_visible=True,
+                          rangeselector=dict(
+                              buttons=list([
+                                  dict(count=30, label="30D", step="day", stepmode="backward"),
+                                  dict(count=60, label="60D", step="day", stepmode="backward"),
+                                  dict(count=90, label="90D", step="day", stepmode="backward"),
+                                  dict(count=120, label="120D", step="day", stepmode="backward"),
+                                  dict(count=150, label="150D", step="day", stepmode="backward"),
+                                  dict(step="all")
+                              ])
+                          ))
+
+        st.plotly_chart(fig4)
+
+        st.markdown("### Closing price of the stock")
+        st.markdown("The closing price of a stock is the price at which the share closes at the end of trading hours "
+                    "of the stock market. In simple terms, the closing price is the weighted average of all prices "
+                    "during the last 30 minutes of the trading hours.")
+
+        fig5 = go.Figure()
+        fig5.add_trace(go.Scatter(x=list(data.index), y=list(data.Close)))
+        fig5.update_layout(title_text="Closing price of the stock", width=850, height=550)
+        fig5.update_xaxes(rangeslider_visible=True,
+                          rangeselector=dict(
+                              buttons=list([
+                                  dict(count=30, label="30D", step="day", stepmode="backward"),
+                                  dict(count=60, label="60D", step="day", stepmode="backward"),
+                                  dict(count=90, label="90D", step="day", stepmode="backward"),
+                                  dict(count=120, label="120D", step="day", stepmode="backward"),
+                                  dict(count=150, label="150D", step="day", stepmode="backward"),
+                                  dict(step="all")
+                              ])
+                          ))
+
+        st.plotly_chart(fig5)
+
+######################################################################################
 
     elif show == "Company Data":
         symbolticker = companies[company]
@@ -217,7 +312,7 @@ def prediction():
         return data
     df = data_download()
     
-    pred = st.sidebar.radio("Regression Type", ["Linear Regression", "Tree Prediction"])
+    pred = st.sidebar.radio("Regression Type", ["Tree Prediction", "Linear Regression"])
 
     # removing index which is date
     df['Date'] = df.index
@@ -273,14 +368,32 @@ def prediction():
         # mod.Vclose = df.Close.loc[:747]
         # mod.Vpredictions = df.Close.loc[:747]
 
-        mod.Vclose.loc[148:] = valid.Close
+        # mod.Vclose.loc[148:] = valid.Close
         mod.Vpredictions.loc[148:] = valid.predictions
-        mod.Close = df.Close.loc[:150]
+        # mod.Close = df.Close.loc[:150]
         # plt.figure(figsize=(16,8))
         # plt.plot(mod.Vpredictions,color='white')
         # plt.plot(mod.Close, color='lightgrey')
         chart_data = mod
-        st.line_chart(chart_data)
+        fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
+                               # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
+                               go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
+                                          name='Predictions')])
+
+        fig6.update_layout(title_text="Linear Regression", width=850, height=550)
+        fig6.update_xaxes(rangeslider_visible=True,
+                          rangeselector = dict(
+                              buttons=list([
+                                  dict(count=30, label="30D", step="day", stepmode="backward"),
+                                  dict(count=60, label="60D", step="day", stepmode="backward"),
+                                  dict(count=90, label="90D", step="day", stepmode="backward"),
+                                  dict(count=120, label="120D", step="day", stepmode="backward"),
+                                  dict(count=150, label="150D", step="day", stepmode="backward"),
+                                  dict(step="all")
+                                ])
+                            ))
+        st.plotly_chart(fig6)
+        # st.line_chart(chart_data)
 
     elif pred == "Tree Prediction":
         predictions = tree_prediction
@@ -296,14 +409,32 @@ def prediction():
         # mod.Vclose = df.Close.loc[:747]
         # mod.Vpredictions = df.Close.loc[:747]
 
-        mod.Vclose.loc[148:] = valid.Close
+        # mod.Vclose.loc[148:] = valid.Close
         mod.Vpredictions.loc[148:] = valid.predictions
-        mod.Close = df.Close.loc[:150]
+        # mod.Close = df.Close.loc[:150]
         # plt.figure(figsize=(16,8))
         # plt.plot(mod.Vpredictions,color='white')
         # plt.plot(mod.Close, color='lightgrey')
         chart_data = mod
-        st.line_chart(chart_data)
+        fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
+                               # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
+                               go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
+                                          name='Predictions')])
+
+        fig6.update_layout(title_text="Tree Prediction", width=850, height=550)
+        fig6.update_xaxes(rangeslider_visible=True,
+                          rangeselector=dict(
+                              buttons=list([
+                                  dict(count=30, label="30D", step="day", stepmode="backward"),
+                                  dict(count=60, label="60D", step="day", stepmode="backward"),
+                                  dict(count=90, label="90D", step="day", stepmode="backward"),
+                                  dict(count=120, label="120D", step="day", stepmode="backward"),
+                                  dict(count=150, label="150D", step="day", stepmode="backward"),
+                                  dict(step="all")
+                              ])
+                          ))
+        st.plotly_chart(fig6)
+        # st.line_chart(chart_data)
 
 
 ##################################################################################
