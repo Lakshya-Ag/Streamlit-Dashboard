@@ -514,6 +514,8 @@ def prediction():
                                 ])
                             ))
         st.plotly_chart(fig6)
+        lin_confidence = lr.score(x_test,y_test)
+        st.markdown('Confidence Score - ' + lr_confidence)
         # st.line_chart(chart_data)
 
     elif pred == "Tree Prediction":
