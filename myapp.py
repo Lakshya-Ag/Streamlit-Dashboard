@@ -592,7 +592,7 @@ def prediction():
         st.plotly_chart(fig6)
         # st.line_chart(chart_data)
 
-    elif pred == "RBF Prediciton":
+    elif pred == "RBF Prediction":
         predictions = RBF_prediction
         valid = df[x.shape[0]:]
         valid['predictions'] = predictions
