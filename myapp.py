@@ -6,17 +6,112 @@ import streamlit as st
 import yfinance as yf
 import seaborn as sns
 import plotly.graph_objs as go
+from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 plt.style.use('bmh')
+import sqlite3
+conn=sqlite3.connect('Data.db')
+c=conn.cursor()
 import matplotlib.animation as ani
 import altair as alt
 
 ########################################################################################################################
 
+def create_usertable():
+    c.execute('CREATE TABLE IF NOT EXISTS userstable(username TEXT,password TEXT)')
+
+
+def add_userdata(username, password):
+    c.execute('INSERT INTO userstable(username,password) VALUES (?,?)', (username, password))
+    conn.commit()
+
+
+def login_user(username, password):
+    c.execute('SELECT * FROM userstable WHERE username =? AND password = ?', (username, password))
+    data = c.fetchall()
+    return data
+
+
+def remove_all_user(username, password):
+    c.execute('DELETE FROM userstable', );
+    conn.commit()
+
+
+def view_all_users():
+    c.execute('SELECT * FROM userstable')
+    data = c.fetchall()
+    return data
+
+
 def main():
+    """Login App"""
+    st.title("Login App")
+    menu = ["Home", "Login", "Signup"]
+    choice = st.sidebar.selectbox("Menu", menu)
+
+    if choice == "Home":
+        st.subheader("Home")
+    elif choice == "Login":
+        st.subheader("Login Section")
+        # name = st.sidebar.text_input("Name")
+        username = st.sidebar.text_input("User Name")
+        password = st.sidebar.text_input("Password", type='password')
+        if st.sidebar.checkbox("Login"):
+            # if password=='1234' and username=='sayak':
+            create_usertable()
+            result = 0
+            result = login_user(username, password)
+            if result:
+                if username[-1] == '@':
+                    st.success("Logged In As {}".format(username))
+                    task = st.selectbox("Task", ["Home", 'Help', 'Profile'])
+                    if task == "Home":
+                        st.subheader("Welcome to Home")
+                    elif task == "Help":
+                        st.subheader("Help")
+                    elif task == 'Profile':
+                        st.subheader("User Profiles")
+                        user_result = view_all_users()
+                        clean_db = pd.DataFrame(user_result, columns=['Username', 'Password'])
+                        st.dataframe(clean_db)
+
+                else:
+                    st.success("Logged In As {}".format(username))
+                    task = st.selectbox("Task", ["Home", 'Help'])
+                    if task == "Home":
+                        mainfunc()
+                    elif task == "Help":
+                        st.subheader("Help")
+
+
+            else:
+                st.warning(" Incorrect Username or Password")
+
+    elif choice == "Signup":
+        st.subheader("Create a New Account")
+
+        new_user = st.text_input("Username")
+        new_password = st.text_input("Password", type='password')
+        new_con_password = st.text_input("Confirm Password", type='password')
+        # if new_passowrd.isnull():
+        #  st.warning("enter password")
+        # if new_con_passowrd.isnull():
+        # st.warning("enter Confirm Password")
+        if st.button("Signup"):
+            if (new_password == new_con_password):
+                create_usertable()
+                add_userdata(new_user, new_password)
+                st.success("You Have Successfully Created an Account")
+                st.info("Go to Login Menu to Login")
+            else:
+                st.warning("Password and Confirm Password Don't match")
+
+
+#########################################################################################################
+def mainfunc():
     readme_text = st.markdown(get_file_content_as_string("README.md"))
     st.sidebar.header("What To Do")
     app_mode = st.sidebar.selectbox("Select the app mode", ["Home", "Data Analysis", "Prediction", "Show the Code"])
@@ -32,7 +127,7 @@ def main():
         readme_text.empty()
         st.code(get_file_content_as_string("myapp.py"))
 
-########################################################################################################################
+#####################################################################################################################
 
 companies = {}
 xls = xlrd.open_workbook("cname.xls")
@@ -312,7 +407,8 @@ def prediction():
         return data
     df = data_download()
     
-    pred = st.sidebar.radio("Regression Type", ["Tree Prediction", "Linear Regression"])
+    pred = st.sidebar.radio("Regression Type", ["Tree Prediction", "Linear Regression", "SVR Prediction",
+                                                "RBF Prediction", "Polynomial Prediction", "Linear Regression 2"])
 
     # removing index which is date
     df['Date'] = df.index
@@ -343,6 +439,22 @@ def prediction():
     # create the linear regression model
     lr = LinearRegression().fit(x_train, y_train)
 
+    # create the svr model
+    svr_rbf = SVR(C=1e3, gamma=.1)
+    svr_rbf.fit(x_train, y_train)
+
+    # create the RBF model
+    rbf_svr = SVR(kernel='rbf', C=1000.0, gamma=.85)
+    rbf_svr.fit(x_train, y_train)
+
+    # Create the polyomial model
+    poly_svr = SVR(kernel='poly', C=1000.0, degree=2)
+    poly_svr.fit(x_train, y_train)
+
+    # create the linear 2 model
+    lin_svr = SVR(kernel='linear', C=1000.0, gamma=.85)
+    lin_svr.fit(x_train, y_train)
+
     # get the last x rows of the feature dataset
     x_future = df.drop(['Prediction'], 1)[:-future_days]
     x_future = x_future.tail(future_days)
@@ -351,8 +463,20 @@ def prediction():
     # show the model tree prediction
     tree_prediction = tree.predict(x_future)
 
-    # show thw model linear regression prediction
+    # show the model linear regression prediction
     lr_prediction = lr.predict(x_future)
+
+    # show the model SVR prediction
+    SVR_prediction = svr_rbf.predict(x_future)
+
+    # show the model RBF prediction
+    RBF_prediction = rbf_svr.predict(x_future)
+
+    # show the model Polynomial prediction
+    poly_prediction = poly_svr.predict(x_future)
+
+    ##show thw model linear regression2 prediction
+    lr2_prediction = lin_svr.predict(x_future)
 
     if pred == "Linear Regression":
         predictions = lr_prediction
@@ -371,9 +495,6 @@ def prediction():
         # mod.Vclose.loc[148:] = valid.Close
         mod.Vpredictions.loc[148:] = valid.predictions
         # mod.Close = df.Close.loc[:150]
-        # plt.figure(figsize=(16,8))
-        # plt.plot(mod.Vpredictions,color='white')
-        # plt.plot(mod.Close, color='lightgrey')
         chart_data = mod
         fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
                                # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
@@ -412,9 +533,6 @@ def prediction():
         # mod.Vclose.loc[148:] = valid.Close
         mod.Vpredictions.loc[148:] = valid.predictions
         # mod.Close = df.Close.loc[:150]
-        # plt.figure(figsize=(16,8))
-        # plt.plot(mod.Vpredictions,color='white')
-        # plt.plot(mod.Close, color='lightgrey')
         chart_data = mod
         fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
                                # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
@@ -436,6 +554,157 @@ def prediction():
         st.plotly_chart(fig6)
         # st.line_chart(chart_data)
 
+    elif pred == "SVR Prediction":
+        predictions = SVR_prediction
+        valid = df[x.shape[0]:]
+        valid['predictions'] = predictions
+
+        # alter
+        data = {'Close': [], 'Vclose': [], 'Vpredictions': []}
+        mod = pd.DataFrame(data)
+        mod.set_index = 'index'
+        mod.Close = df.Close
+
+        # mod.Vclose = df.Close.loc[:747]
+        # mod.Vpredictions = df.Close.loc[:747]
+
+        # mod.Vclose.loc[148:] = valid.Close
+        mod.Vpredictions.loc[148:] = valid.predictions
+        # mod.Close = df.Close.loc[:150]
+        chart_data = mod
+        fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
+                               # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
+                               go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
+                                          name='Predictions')])
+
+        fig6.update_layout(title_text="SVR Prediction", width=850, height=550)
+        fig6.update_xaxes(rangeslider_visible=True,
+                          rangeselector=dict(
+                              buttons=list([
+                                  dict(count=30, label="30D", step="day", stepmode="backward"),
+                                  dict(count=60, label="60D", step="day", stepmode="backward"),
+                                  dict(count=90, label="90D", step="day", stepmode="backward"),
+                                  dict(count=120, label="120D", step="day", stepmode="backward"),
+                                  dict(count=150, label="150D", step="day", stepmode="backward"),
+                                  dict(step="all")
+                              ])
+                          ))
+        st.plotly_chart(fig6)
+        # st.line_chart(chart_data)
+
+    elif pred == "RBF Prediciton":
+        predictions = RBF_prediction
+        valid = df[x.shape[0]:]
+        valid['predictions'] = predictions
+
+        # alter
+        data = {'Close': [], 'Vclose': [], 'Vpredictions': []}
+        mod = pd.DataFrame(data)
+        mod.set_index = 'index'
+        mod.Close = df.Close
+
+        # mod.Vclose = df.Close.loc[:747]
+        # mod.Vpredictions = df.Close.loc[:747]
+
+        # mod.Vclose.loc[148:] = valid.Close
+        mod.Vpredictions.loc[148:] = valid.predictions
+        # mod.Close = df.Close.loc[:150]
+        chart_data = mod
+        fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
+                               # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
+                               go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
+                                          name='Predictions')])
+
+        fig6.update_layout(title_text="RBF Prediction", width=850, height=550)
+        fig6.update_xaxes(rangeslider_visible=True,
+                          rangeselector=dict(
+                              buttons=list([
+                                  dict(count=30, label="30D", step="day", stepmode="backward"),
+                                  dict(count=60, label="60D", step="day", stepmode="backward"),
+                                  dict(count=90, label="90D", step="day", stepmode="backward"),
+                                  dict(count=120, label="120D", step="day", stepmode="backward"),
+                                  dict(count=150, label="150D", step="day", stepmode="backward"),
+                                  dict(step="all")
+                              ])
+                          ))
+        st.plotly_chart(fig6)
+        # st.line_chart(chart_data)
+
+    elif pred == "Polynomial Prediction":
+        predictions = poly_prediction
+        valid = df[x.shape[0]:]
+        valid['predictions'] = predictions
+
+        # alter
+        data = {'Close': [], 'Vclose': [], 'Vpredictions': []}
+        mod = pd.DataFrame(data)
+        mod.set_index = 'index'
+        mod.Close = df.Close
+
+        # mod.Vclose = df.Close.loc[:747]
+        # mod.Vpredictions = df.Close.loc[:747]
+
+        # mod.Vclose.loc[148:] = valid.Close
+        mod.Vpredictions.loc[148:] = valid.predictions
+        # mod.Close = df.Close.loc[:150]
+        chart_data = mod
+        fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
+                               # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
+                               go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
+                                          name='Predictions')])
+
+        fig6.update_layout(title_text="Polynomial Prediction", width=850, height=550)
+        fig6.update_xaxes(rangeslider_visible=True,
+                          rangeselector=dict(
+                              buttons=list([
+                                  dict(count=30, label="30D", step="day", stepmode="backward"),
+                                  dict(count=60, label="60D", step="day", stepmode="backward"),
+                                  dict(count=90, label="90D", step="day", stepmode="backward"),
+                                  dict(count=120, label="120D", step="day", stepmode="backward"),
+                                  dict(count=150, label="150D", step="day", stepmode="backward"),
+                                  dict(step="all")
+                              ])
+                          ))
+        st.plotly_chart(fig6)
+        # st.line_chart(chart_data)
+
+    elif pred == "Linear Regression 2":
+        predictions = lr2_prediction
+        valid = df[x.shape[0]:]
+        valid['predictions'] = predictions
+
+        # alter
+        data = {'Close': [], 'Vclose': [], 'Vpredictions': []}
+        mod = pd.DataFrame(data)
+        mod.set_index = 'index'
+        mod.Close = df.Close
+
+        # mod.Vclose = df.Close.loc[:747]
+        # mod.Vpredictions = df.Close.loc[:747]
+
+        # mod.Vclose.loc[148:] = valid.Close
+        mod.Vpredictions.loc[148:] = valid.predictions
+        # mod.Close = df.Close.loc[:150]
+        chart_data = mod
+        fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
+                               # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
+                               go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
+                                          name='Predictions')])
+
+        fig6.update_layout(title_text="Linear Regression 2", width=850, height=550)
+        fig6.update_xaxes(rangeslider_visible=True,
+                          rangeselector=dict(
+                              buttons=list([
+                                  dict(count=30, label="30D", step="day", stepmode="backward"),
+                                  dict(count=60, label="60D", step="day", stepmode="backward"),
+                                  dict(count=90, label="90D", step="day", stepmode="backward"),
+                                  dict(count=120, label="120D", step="day", stepmode="backward"),
+                                  dict(count=150, label="150D", step="day", stepmode="backward"),
+                                  dict(step="all")
+                              ])
+                          ))
+        st.plotly_chart(fig6)
+        # st.line_chart(chart_data)
 
 ##################################################################################
 
