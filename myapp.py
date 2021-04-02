@@ -496,6 +496,8 @@ def prediction():
         mod.Vpredictions.loc[148:] = valid.predictions
         # mod.Close = df.Close.loc[:150]
         chart_data = mod
+        lin_confidence = lr.score(x_test, y_test)
+        st.header(pred + ', Confidence score is ' + str(round(lin_confidence, 2)))
         fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
                                # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
                                go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
@@ -514,9 +516,9 @@ def prediction():
                                 ])
                             ))
         st.plotly_chart(fig6)
-        lin_confidence = lr.score(x_test,y_test)
-        st.markdown('Confidence score - ' + str(lin_confidence))
-        st.number_input("Confidence Level", lin_confidence)
+#         lin_confidence = lr.score(x_test,y_test)
+#         st.markdown('Confidence score - ' + str(lin_confidence))
+#         st.number_input("Confidence Level", lin_confidence)
         # st.write('Confidence Score - ' + lr_confidence)
         # st.line_chart(chart_data)
 
