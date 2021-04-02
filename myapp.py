@@ -542,7 +542,7 @@ def prediction():
                                go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
                                           name='Predictions')])
 
-        fig6.update_layout(title_text="Tree Prediction", width=850, height=550)
+        fig6.update_layout(title_text="## Tree Prediction", width=850, height=550)
         fig6.update_xaxes(rangeslider_visible=True,
                           rangeselector=dict(
                               buttons=list([
