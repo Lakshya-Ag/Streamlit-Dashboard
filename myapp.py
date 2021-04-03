@@ -10,11 +10,14 @@ from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
 import matplotlib.pyplot as plt
 plt.style.use('bmh')
 import sqlite3
 conn=sqlite3.connect('Data.db')
 c=conn.cursor()
+import quandl
 import matplotlib.animation as ani
 import altair as alt
 
@@ -396,7 +399,7 @@ def data_analysis():
 def prediction():
     def data_download():
         company = company_name()
-        data = yf.download(tickers=companies[company], period='200d', interval='1d')
+        data = yf.download(tickers=companies[company], period='1000d', interval='1d')
 
         def divide(j):
             j = j / 1000000
@@ -416,11 +419,11 @@ def prediction():
 
     # rearranging the columns
     df = df[['Date', 'Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume (in millions)']]
-
+    df['Close'] = scaler.fit_transform(df[['Close']])
     df = df[['Close']]
 
     # create a variable to predict 'x' days out into the future
-    future_days = 50
+    future_days = 250
     # create a new column( target) shifted 'x' units/days up
     df['Prediction'] = df[['Close']].shift(-future_days)
 
@@ -493,7 +496,7 @@ def prediction():
         # mod.Vpredictions = df.Close.loc[:747]
 
         # mod.Vclose.loc[148:] = valid.Close
-        mod.Vpredictions.loc[148:] = valid.predictions
+        mod.Vpredictions.loc[748:] = valid.predictions
         # mod.Close = df.Close.loc[:150]
         chart_data = mod
         lin_confidence = lr.score(x_test, y_test)
@@ -503,7 +506,7 @@ def prediction():
                                go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
                                           name='Predictions')])
 
-        fig6.update_layout(title_text="Linear Regression", width=850, height=550)
+        fig6.update_layout(width=850, height=550)
         fig6.update_xaxes(rangeslider_visible=True,
                           rangeselector = dict(
                               buttons=list([
@@ -516,10 +519,8 @@ def prediction():
                                 ])
                             ))
         st.plotly_chart(fig6)
-#         lin_confidence = lr.score(x_test,y_test)
-#         st.markdown('Confidence score - ' + str(lin_confidence))
-#         st.number_input("Confidence Level", lin_confidence)
-        # st.write('Confidence Score - ' + lr_confidence)
+
+        # st.number_input("Confidence Level", lin_confidence)
         # st.line_chart(chart_data)
 
     elif pred == "Tree Prediction":
@@ -537,15 +538,17 @@ def prediction():
         # mod.Vpredictions = df.Close.loc[:747]
 
         # mod.Vclose.loc[148:] = valid.Close
-        mod.Vpredictions.loc[148:] = valid.predictions
+        mod.Vpredictions.loc[748:] = valid.predictions
         # mod.Close = df.Close.loc[:150]
         chart_data = mod
+        tree_confidence = tree.score(x_test, y_test)
+        st.header(pred + ', Confidence score is ' + str(round(tree_confidence, 2)))
         fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
                                # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
                                go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
                                           name='Predictions')])
 
-        fig6.update_layout(title_text="## Tree Prediction", width=850, height=550)
+        fig6.update_layout(width=850, height=550)
         fig6.update_xaxes(rangeslider_visible=True,
                           rangeselector=dict(
                               buttons=list([
@@ -558,6 +561,8 @@ def prediction():
                               ])
                           ))
         st.plotly_chart(fig6)
+
+        # st.number_input("Confidence Level", tree_confidence)
         # st.line_chart(chart_data)
 
     elif pred == "SVR Prediction":
@@ -575,15 +580,17 @@ def prediction():
         # mod.Vpredictions = df.Close.loc[:747]
 
         # mod.Vclose.loc[148:] = valid.Close
-        mod.Vpredictions.loc[148:] = valid.predictions
+        mod.Vpredictions.loc[748:] = valid.predictions
         # mod.Close = df.Close.loc[:150]
         chart_data = mod
+        svr_confidence = svr_rbf.score(x_test, y_test)
+        st.header(pred + ', Confidence score is ' + str(round(svr_confidence, 2)))
         fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
                                # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
                                go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
                                           name='Predictions')])
 
-        fig6.update_layout(title_text="SVR Prediction", width=850, height=550)
+        fig6.update_layout(width=850, height=550)
         fig6.update_xaxes(rangeslider_visible=True,
                           rangeselector=dict(
                               buttons=list([
@@ -596,6 +603,8 @@ def prediction():
                               ])
                           ))
         st.plotly_chart(fig6)
+
+        # st.number_input("Confidence Level", svr_confidence)
         # st.line_chart(chart_data)
 
     elif pred == "RBF Prediction":
@@ -613,15 +622,17 @@ def prediction():
         # mod.Vpredictions = df.Close.loc[:747]
 
         # mod.Vclose.loc[148:] = valid.Close
-        mod.Vpredictions.loc[148:] = valid.predictions
+        mod.Vpredictions.loc[748:] = valid.predictions
         # mod.Close = df.Close.loc[:150]
         chart_data = mod
+        rbf_confidence = rbf_svr.score(x_test, y_test)
+        st.header(pred + ', Confidence score is ' + str(round(rbf_confidence, 2)))
         fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
                                # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
                                go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
                                           name='Predictions')])
 
-        fig6.update_layout(title_text="RBF Prediction", width=850, height=550)
+        fig6.update_layout(width=850, height=550)
         fig6.update_xaxes(rangeslider_visible=True,
                           rangeselector=dict(
                               buttons=list([
@@ -634,6 +645,8 @@ def prediction():
                               ])
                           ))
         st.plotly_chart(fig6)
+
+        # st.number_input("Confidence Level", rbf_confidence)
         # st.line_chart(chart_data)
 
     elif pred == "Polynomial Prediction":
@@ -651,15 +664,17 @@ def prediction():
         # mod.Vpredictions = df.Close.loc[:747]
 
         # mod.Vclose.loc[148:] = valid.Close
-        mod.Vpredictions.loc[148:] = valid.predictions
+        mod.Vpredictions.loc[748:] = valid.predictions
         # mod.Close = df.Close.loc[:150]
         chart_data = mod
+        poly_confidence = poly_svr.score(x_test, y_test)
+        st.header(pred + ', Confidence score is ' + str(round(poly_confidence, 2)))
         fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
                                # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
                                go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
                                           name='Predictions')])
 
-        fig6.update_layout(title_text="Polynomial Prediction", width=850, height=550)
+        fig6.update_layout(width=850, height=550)
         fig6.update_xaxes(rangeslider_visible=True,
                           rangeselector=dict(
                               buttons=list([
@@ -672,6 +687,8 @@ def prediction():
                               ])
                           ))
         st.plotly_chart(fig6)
+
+        # st.number_input("Confidence Level", poly_confidence)
         # st.line_chart(chart_data)
 
     elif pred == "Linear Regression 2":
@@ -689,15 +706,17 @@ def prediction():
         # mod.Vpredictions = df.Close.loc[:747]
 
         # mod.Vclose.loc[148:] = valid.Close
-        mod.Vpredictions.loc[148:] = valid.predictions
+        mod.Vpredictions.loc[748:] = valid.predictions
         # mod.Close = df.Close.loc[:150]
         chart_data = mod
+        linsvr_confidence = lin_svr.score(x_test, y_test)
+        st.header(pred + ', Confidence score is ' + str(round(linsvr_confidence, 2)))
         fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
                                # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
                                go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
                                           name='Predictions')])
 
-        fig6.update_layout(title_text="Linear Regression 2", width=850, height=550)
+        fig6.update_layout(width=850, height=550)
         fig6.update_xaxes(rangeslider_visible=True,
                           rangeselector=dict(
                               buttons=list([
@@ -710,6 +729,7 @@ def prediction():
                               ])
                           ))
         st.plotly_chart(fig6)
+        # st.number_input("Confidence Level", linsvr_confidence)
         # st.line_chart(chart_data)
 
 ##################################################################################
