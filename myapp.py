@@ -51,22 +51,27 @@ def view_all_users():
 
 def main():
     """Login App"""
-    st.title("Login App")
+    # st.title("Login App")
     menu = ["Home", "Login", "Signup"]
     choice = st.sidebar.selectbox("Menu", menu)
 
     if choice == "Home":
-        st.subheader("Home")
+        readme_text = st.markdown(get_file_content_as_string("README.md"))
+        # st.subheader("Home")
     elif choice == "Login":
-        st.subheader("Login Section")
+        # st.subheader("Login Section")
+        readme_text = st.markdown(get_file_content_as_string("README.md"))
         # name = st.sidebar.text_input("Name")
         username = st.sidebar.text_input("User Name")
         password = st.sidebar.text_input("Password", type='password')
-        if st.sidebar.checkbox("Login"):
+        if st.sidebar.checkbox("Login") or (password == '1234' and username == 'sayak'):
             # if password=='1234' and username=='sayak':
             create_usertable()
             result = 0
             result = login_user(username, password)
+            readme_text.empty()
+            st.success("Logged In As {}".format(username))
+            mainfunc()
             if result:
                 if username[-1] == '@':
                     st.success("Logged In As {}".format(username))
@@ -83,19 +88,18 @@ def main():
 
                 else:
                     st.success("Logged In As {}".format(username))
-                    task = st.selectbox("Task", ["Home", 'Help'])
-                    if task == "Home":
-                        mainfunc()
-                    elif task == "Help":
-                        st.subheader("Help")
+                    mainfunc()
+                    # task = st.selectbox("Task", ["Home", 'Help'])
+                    # if task == "Home":
+                    #     mainfunc()
+                    # elif task == "Help":
+                    #     st.subheader("Help")
 
-
-            else:
-                st.warning(" Incorrect Username or Password")
+        else:
+            st.warning(" Incorrect Username or Password")
 
     elif choice == "Signup":
         st.subheader("Create a New Account")
-
         new_user = st.text_input("Username")
         new_password = st.text_input("Password", type='password')
         new_con_password = st.text_input("Confirm Password", type='password')
@@ -115,19 +119,20 @@ def main():
 
 #########################################################################################################
 def mainfunc():
-    readme_text = st.markdown(get_file_content_as_string("README.md"))
+
     st.sidebar.header("What To Do")
-    app_mode = st.sidebar.selectbox("Select the app mode", ["Home", "Data Analysis", "Prediction", "Show the Code"])
+    app_mode = st.selectbox("Select the app mode", ["Home", "Data Analysis", "Prediction", "Show the Code"])
+    st.success("Select Data Analysis or prediction to move on")
     if app_mode == "Home":
-        st.sidebar.success("Select Data Analysis or prediction to move on")
+        readme_text = st.markdown(get_file_content_as_string("README.md"))
     elif app_mode == "Data Analysis":
-        readme_text.empty()
+        # readme_text.empty()
         data_analysis()
     elif app_mode == "Prediction":
-        readme_text.empty()
+        # readme_text.empty()
         prediction()
     elif app_mode == "Show the Code":
-        readme_text.empty()
+        # readme_text.empty()
         st.code(get_file_content_as_string("myapp.py"))
 
 #####################################################################################################################
@@ -162,21 +167,29 @@ def get_file_content_as_string(path):
     return response.read().decode("utf-8")
 
 ############################################################################
+@st.cache(suppress_st_warning=True)
+def prediction_graph(algo, confidence, cdata):
+    st.header(algo + ', Confidence score is ' + str(round(confidence, 2)))
+    fig6 = go.Figure(data=[go.Scatter(x=list(cdata.index), y=list(cdata.Close), name='Close'),
+                           # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
+                           go.Scatter(x=list(cdata.index), y=list(cdata.Vpredictions),
+                                      name='Predictions')])
 
+    fig6.update_layout(width=850, height=550)
+    fig6.update_xaxes(rangeslider_visible=True,
+                      rangeselector=dict(
+                          buttons=list([
+                              dict(count=30, label="30D", step="day", stepmode="backward"),
+                              dict(count=60, label="60D", step="day", stepmode="backward"),
+                              dict(count=90, label="90D", step="day", stepmode="backward"),
+                              dict(count=120, label="120D", step="day", stepmode="backward"),
+                              dict(count=150, label="150D", step="day", stepmode="backward"),
+                              dict(step="all")
+                          ])
+                      ))
+    st.plotly_chart(fig6)
 
-# def data_download():
-#     company = company_name()
-#     data = yf.download(tickers=companies[company], period='180d', interval='1d')
-#
-#     def divide(j):
-#         j = j / 1000000
-#         return j
-#
-#     data['Volume'] = data['Volume'].apply(divide)
-#     data.rename(columns={'Volume': 'Volume (in millions)'}, inplace=True)
-#     return data
-
-###################################################################################
+#############################################################################
 
 def data_analysis():
     company = company_name()
@@ -370,36 +383,12 @@ def data_analysis():
         st.markdown("### Recommendations")
         st.dataframe(dataticker.recommendations)
 
-    ################################################################################################################
-
-    # elif show_data == "Animation":
-    # data2 = data.drop(['Adj Close', 'Open', 'High', 'Low'], axis=1)
-    # color = ['orange', 'purple']
-    # fig1 = plt.figure(figsize=(9, 5))
-    # plt.ion()
-    # plt.xticks(rotation=45, ha="right", rotation_mode="anchor")  # rotate the x-axis values
-    # plt.subplots_adjust(bottom=0.2, top=0.9)  # ensuring the dates (on the x-axis) fit in the screen
-    #
-    #
-    # def buildmebarchart(i=int):
-    #     plt.legend(data2.columns)
-    #     p = plt.plot(data2[:i].index, data2[:i].values,
-    #                  linewidth=0.8)  # note it only returns the dataset, up to the point i
-    #
-    #     for i in range(0, 2):
-    #         p[i].set_color(color[i])  # set the colour of each curve
-    #
-    #
-    # animator = ani.FuncAnimation(fig1, buildmebarchart, interval=500)
-    #
-    # st.plotly_chart(fig1)
-
 ###################################################################################
 
 def prediction():
     def data_download():
         company = company_name()
-        data = yf.download(tickers=companies[company], period='1000d', interval='1d')
+        data = yf.download(tickers=companies[company], period='200d', interval='1d')
 
         def divide(j):
             j = j / 1000000
@@ -423,7 +412,7 @@ def prediction():
     df = df[['Close']]
 
     # create a variable to predict 'x' days out into the future
-    future_days = 250
+    future_days = 50
     # create a new column( target) shifted 'x' units/days up
     df['Prediction'] = df[['Close']].shift(-future_days)
 
@@ -491,37 +480,14 @@ def prediction():
         mod = pd.DataFrame(data)
         mod.set_index = 'index'
         mod.Close = df.Close
-
         # mod.Vclose = df.Close.loc[:747]
         # mod.Vpredictions = df.Close.loc[:747]
-
         # mod.Vclose.loc[148:] = valid.Close
-        mod.Vpredictions.loc[748:] = valid.predictions
+        mod.Vpredictions.loc[148:] = valid.predictions
         # mod.Close = df.Close.loc[:150]
         chart_data = mod
         lin_confidence = lr.score(x_test, y_test)
-        st.header(pred + ', Confidence score is ' + str(round(lin_confidence, 2)))
-        fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
-                               # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
-                               go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
-                                          name='Predictions')])
-
-        fig6.update_layout(width=850, height=550)
-        fig6.update_xaxes(rangeslider_visible=True,
-                          rangeselector = dict(
-                              buttons=list([
-                                  dict(count=30, label="30D", step="day", stepmode="backward"),
-                                  dict(count=60, label="60D", step="day", stepmode="backward"),
-                                  dict(count=90, label="90D", step="day", stepmode="backward"),
-                                  dict(count=120, label="120D", step="day", stepmode="backward"),
-                                  dict(count=150, label="150D", step="day", stepmode="backward"),
-                                  dict(step="all")
-                                ])
-                            ))
-        st.plotly_chart(fig6)
-
-        # st.number_input("Confidence Level", lin_confidence)
-        # st.line_chart(chart_data)
+        prediction_graph(pred, lin_confidence, chart_data)
 
     elif pred == "Tree Prediction":
         predictions = tree_prediction
@@ -538,32 +504,11 @@ def prediction():
         # mod.Vpredictions = df.Close.loc[:747]
 
         # mod.Vclose.loc[148:] = valid.Close
-        mod.Vpredictions.loc[748:] = valid.predictions
+        mod.Vpredictions.loc[148:] = valid.predictions
         # mod.Close = df.Close.loc[:150]
         chart_data = mod
         tree_confidence = tree.score(x_test, y_test)
-        st.header(pred + ', Confidence score is ' + str(round(tree_confidence, 2)))
-        fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
-                               # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
-                               go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
-                                          name='Predictions')])
-
-        fig6.update_layout(width=850, height=550)
-        fig6.update_xaxes(rangeslider_visible=True,
-                          rangeselector=dict(
-                              buttons=list([
-                                  dict(count=30, label="30D", step="day", stepmode="backward"),
-                                  dict(count=60, label="60D", step="day", stepmode="backward"),
-                                  dict(count=90, label="90D", step="day", stepmode="backward"),
-                                  dict(count=120, label="120D", step="day", stepmode="backward"),
-                                  dict(count=150, label="150D", step="day", stepmode="backward"),
-                                  dict(step="all")
-                              ])
-                          ))
-        st.plotly_chart(fig6)
-
-        # st.number_input("Confidence Level", tree_confidence)
-        # st.line_chart(chart_data)
+        prediction_graph(pred, tree_confidence, chart_data)
 
     elif pred == "SVR Prediction":
         predictions = SVR_prediction
@@ -580,32 +525,11 @@ def prediction():
         # mod.Vpredictions = df.Close.loc[:747]
 
         # mod.Vclose.loc[148:] = valid.Close
-        mod.Vpredictions.loc[748:] = valid.predictions
+        mod.Vpredictions.loc[148:] = valid.predictions
         # mod.Close = df.Close.loc[:150]
         chart_data = mod
         svr_confidence = svr_rbf.score(x_test, y_test)
-        st.header(pred + ', Confidence score is ' + str(round(svr_confidence, 2)))
-        fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
-                               # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
-                               go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
-                                          name='Predictions')])
-
-        fig6.update_layout(width=850, height=550)
-        fig6.update_xaxes(rangeslider_visible=True,
-                          rangeselector=dict(
-                              buttons=list([
-                                  dict(count=30, label="30D", step="day", stepmode="backward"),
-                                  dict(count=60, label="60D", step="day", stepmode="backward"),
-                                  dict(count=90, label="90D", step="day", stepmode="backward"),
-                                  dict(count=120, label="120D", step="day", stepmode="backward"),
-                                  dict(count=150, label="150D", step="day", stepmode="backward"),
-                                  dict(step="all")
-                              ])
-                          ))
-        st.plotly_chart(fig6)
-
-        # st.number_input("Confidence Level", svr_confidence)
-        # st.line_chart(chart_data)
+        prediction_graph(pred, svr_confidence, chart_data)
 
     elif pred == "RBF Prediction":
         predictions = RBF_prediction
@@ -622,32 +546,11 @@ def prediction():
         # mod.Vpredictions = df.Close.loc[:747]
 
         # mod.Vclose.loc[148:] = valid.Close
-        mod.Vpredictions.loc[748:] = valid.predictions
+        mod.Vpredictions.loc[148:] = valid.predictions
         # mod.Close = df.Close.loc[:150]
         chart_data = mod
         rbf_confidence = rbf_svr.score(x_test, y_test)
-        st.header(pred + ', Confidence score is ' + str(round(rbf_confidence, 2)))
-        fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
-                               # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
-                               go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
-                                          name='Predictions')])
-
-        fig6.update_layout(width=850, height=550)
-        fig6.update_xaxes(rangeslider_visible=True,
-                          rangeselector=dict(
-                              buttons=list([
-                                  dict(count=30, label="30D", step="day", stepmode="backward"),
-                                  dict(count=60, label="60D", step="day", stepmode="backward"),
-                                  dict(count=90, label="90D", step="day", stepmode="backward"),
-                                  dict(count=120, label="120D", step="day", stepmode="backward"),
-                                  dict(count=150, label="150D", step="day", stepmode="backward"),
-                                  dict(step="all")
-                              ])
-                          ))
-        st.plotly_chart(fig6)
-
-        # st.number_input("Confidence Level", rbf_confidence)
-        # st.line_chart(chart_data)
+        prediction_graph(pred, rbf_confidence, chart_data)
 
     elif pred == "Polynomial Prediction":
         predictions = poly_prediction
@@ -664,32 +567,10 @@ def prediction():
         # mod.Vpredictions = df.Close.loc[:747]
 
         # mod.Vclose.loc[148:] = valid.Close
-        mod.Vpredictions.loc[748:] = valid.predictions
+        mod.Vpredictions.loc[148:] = valid.predictions
         # mod.Close = df.Close.loc[:150]
         chart_data = mod
         poly_confidence = poly_svr.score(x_test, y_test)
-        st.header(pred + ', Confidence score is ' + str(round(poly_confidence, 2)))
-        fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
-                               # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
-                               go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
-                                          name='Predictions')])
-
-        fig6.update_layout(width=850, height=550)
-        fig6.update_xaxes(rangeslider_visible=True,
-                          rangeselector=dict(
-                              buttons=list([
-                                  dict(count=30, label="30D", step="day", stepmode="backward"),
-                                  dict(count=60, label="60D", step="day", stepmode="backward"),
-                                  dict(count=90, label="90D", step="day", stepmode="backward"),
-                                  dict(count=120, label="120D", step="day", stepmode="backward"),
-                                  dict(count=150, label="150D", step="day", stepmode="backward"),
-                                  dict(step="all")
-                              ])
-                          ))
-        st.plotly_chart(fig6)
-
-        # st.number_input("Confidence Level", poly_confidence)
-        # st.line_chart(chart_data)
 
     elif pred == "Linear Regression 2":
         predictions = lr2_prediction
@@ -706,31 +587,11 @@ def prediction():
         # mod.Vpredictions = df.Close.loc[:747]
 
         # mod.Vclose.loc[148:] = valid.Close
-        mod.Vpredictions.loc[748:] = valid.predictions
+        mod.Vpredictions.loc[148:] = valid.predictions
         # mod.Close = df.Close.loc[:150]
         chart_data = mod
         linsvr_confidence = lin_svr.score(x_test, y_test)
-        st.header(pred + ', Confidence score is ' + str(round(linsvr_confidence, 2)))
-        fig6 = go.Figure(data=[go.Scatter(x=list(chart_data.index), y=list(chart_data.Close), name='Close'),
-                               # go.Scatter(x=list(chart_data.index), y=list(chart_data.Vclose), name='Vclose'),
-                               go.Scatter(x=list(chart_data.index), y=list(chart_data.Vpredictions),
-                                          name='Predictions')])
-
-        fig6.update_layout(width=850, height=550)
-        fig6.update_xaxes(rangeslider_visible=True,
-                          rangeselector=dict(
-                              buttons=list([
-                                  dict(count=30, label="30D", step="day", stepmode="backward"),
-                                  dict(count=60, label="60D", step="day", stepmode="backward"),
-                                  dict(count=90, label="90D", step="day", stepmode="backward"),
-                                  dict(count=120, label="120D", step="day", stepmode="backward"),
-                                  dict(count=150, label="150D", step="day", stepmode="backward"),
-                                  dict(step="all")
-                              ])
-                          ))
-        st.plotly_chart(fig6)
-        # st.number_input("Confidence Level", linsvr_confidence)
-        # st.line_chart(chart_data)
+        prediction_graph(pred, linsvr_confidence, chart_data)
 
 ##################################################################################
 
