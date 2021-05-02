@@ -122,8 +122,9 @@ def mainfunc():
 
     st.sidebar.header("What To Do")
     app_mode = st.selectbox("Select the app mode", ["Home", "Data Analysis", "Prediction", "Show the Code"])
-    st.success("Select Data Analysis or prediction to move on")
+
     if app_mode == "Home":
+        st.success("Select Data Analysis or prediction to move on")
         readme_text = st.markdown(get_file_content_as_string("README.md"))
     elif app_mode == "Data Analysis":
         # readme_text.empty()
