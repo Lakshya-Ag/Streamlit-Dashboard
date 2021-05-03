@@ -5,7 +5,6 @@ import streamlit as st
 
 ############################################################################
 def main():
-    st.success("Select Data Analysis or prediction to move on")
     readme_text = st.markdown(get_file_content_as_string("README.md"))
 ###########################################################################
 
