@@ -50,7 +50,7 @@ def data_analysis():
 
     if show == "Graphs":
         st.header('Visualization for ' + company)
-        check = st.checkbox("Show Moving Average")
+        check = st.checkbox("Show Moving Average", value=True)
         if check:
             ma = st.radio("Moving Average Days", [10,50,100,200])
 #         ma = st.slider('Slide to select days for Moving Average', min_value=5, max_value=100)
