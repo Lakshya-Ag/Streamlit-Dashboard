@@ -73,8 +73,8 @@ def data_analysis():
                                      dict(count=30, label="30D", step="day", stepmode="backward"),
                                      dict(count=60, label="60D", step="day", stepmode="backward"),
                                      dict(count=90, label="90D", step="day", stepmode="backward"),
-                                     dict(count=120, label="120D", step="day", stepmode="backward"),
-                                     dict(count=150, label="150D", step="day", stepmode="backward"),
+                                     dict(count=180, label="180D", step="day", stepmode="backward"),
+                                     dict(count=365, label="365D", step="day", stepmode="backward"),
                                      dict(step="all")
                                  ])
                              ))
