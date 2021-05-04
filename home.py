@@ -13,7 +13,7 @@ def main():
     if box == "Stock Market Info":
         readme_text = st.markdown(get_file_content_as_string("README.md"))
     elif box == "Covid-19 impact":
-        df1 = yf.download(tickers="NIFTY50", start="2020-01-01", end="2020-12-31")
+        df1 = yf.download(tickers="NIFTY 50", start="2020-01-01", end="2020-12-31")
         fig = go.Figure(data=[go.Candlestick(x=df1.index,
                                              open=df1['Open'],
                                              high=df1['High'],
