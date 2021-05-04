@@ -50,7 +50,7 @@ def data_analysis():
 
     if show == "Graphs":
         st.header('Visualization for ' + company)
-        check = st.checkbox("Show Moving Average", value=True)
+        check = st.checkbox("Show Moving Average")
         if check:
             ma = st.radio("Moving Average Days", [10,50,100,200])
             df1['MA'] = df1.Close.rolling(ma).mean()
