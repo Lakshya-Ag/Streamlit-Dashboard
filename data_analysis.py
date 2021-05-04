@@ -53,6 +53,8 @@ def data_analysis():
         check = st.checkbox("Show Moving Average", value=True)
         if check:
             ma = st.radio("Moving Average Days", [10,50,100,200])
+        else:
+            continue
 #         ma = st.slider('Slide to select days for Moving Average', min_value=5, max_value=100)
         df1['MA'] = df1.Close.rolling(ma).mean()
         
