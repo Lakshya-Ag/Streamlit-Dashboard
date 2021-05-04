@@ -35,7 +35,7 @@ def show_data():
 def data_analysis():
     company = company_name()
     def data_download():
-        data = yf.download(tickers=companies[company], period='180d', interval='1d')
+        data = yf.download(tickers=companies[company], period='3650d', interval='1d')
 
         def divide(j):
             j = j / 1000000
