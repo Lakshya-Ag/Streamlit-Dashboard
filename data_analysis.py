@@ -53,35 +53,87 @@ def data_analysis():
         check = st.checkbox("Show Moving Average", value=True)
         if check:
             ma = st.radio("Moving Average Days", [10,50,100,200])
-        else:
-            continue
-#         ma = st.slider('Slide to select days for Moving Average', min_value=5, max_value=100)
-        df1['MA'] = df1.Close.rolling(ma).mean()
+            df1['MA'] = df1.Close.rolling(ma).mean()
         
-        fig = go.Figure(data=[go.Candlestick(x=df1.index,
-                                     open=df1['Open'],
-                                     high=df1['High'],
-                                     low=df1['Low'],
-                                     close=df1['Close'],
-                                     name='Market Data'),
-                      go.Scatter(x=list(df1.index), y=list(df1.MA), line=dict(color='blue', width=2), name='Moving Average')])
+            fig = go.Figure(data=[go.Candlestick(x=df1.index,
+                                         open=df1['Open'],
+                                         high=df1['High'],
+                                         low=df1['Low'],
+                                         close=df1['Close'],
+                                         name='Market Data'),
+                          go.Scatter(x=list(df1.index), y=list(df1.MA), line=dict(color='blue', width=2), name='Moving Average')])
 
-        fig.update_layout(
-            title='Live share price evolution',
-            yaxis_title='Stock Price (USD per shares)', width=850, height=550)
+            fig.update_layout(
+                title='Live share price evolution',
+                yaxis_title='Stock Price (USD per shares)', width=850, height=550)
 
-        fig.update_xaxes(rangeslider_visible=True,
-                         rangeselector=dict(
-                             buttons=list([
-                                 dict(count=30, label="30D", step="day", stepmode="backward"),
-                                 dict(count=60, label="60D", step="day", stepmode="backward"),
-                                 dict(count=90, label="90D", step="day", stepmode="backward"),
-                                 dict(count=120, label="120D", step="day", stepmode="backward"),
-                                 dict(count=150, label="150D", step="day", stepmode="backward"),
-                                 dict(step="all")
-                             ])
-                         ))
-        st.plotly_chart(fig)
+            fig.update_xaxes(rangeslider_visible=True,
+                             rangeselector=dict(
+                                 buttons=list([
+                                     dict(count=30, label="30D", step="day", stepmode="backward"),
+                                     dict(count=60, label="60D", step="day", stepmode="backward"),
+                                     dict(count=90, label="90D", step="day", stepmode="backward"),
+                                     dict(count=120, label="120D", step="day", stepmode="backward"),
+                                     dict(count=150, label="150D", step="day", stepmode="backward"),
+                                     dict(step="all")
+                                 ])
+                             ))
+            st.plotly_chart(fig)
+        else:
+#             df1['MA'] = df1.Close.rolling(ma).mean()
+        
+            fig = go.Figure(data=[go.Candlestick(x=df1.index,
+                                         open=df1['Open'],
+                                         high=df1['High'],
+                                         low=df1['Low'],
+                                         close=df1['Close'],
+                                         name='Market Data')
+                          ])
+
+            fig.update_layout(
+                title='Live share price evolution',
+                yaxis_title='Stock Price (USD per shares)', width=850, height=550)
+
+            fig.update_xaxes(rangeslider_visible=True,
+                             rangeselector=dict(
+                                 buttons=list([
+                                     dict(count=30, label="30D", step="day", stepmode="backward"),
+                                     dict(count=60, label="60D", step="day", stepmode="backward"),
+                                     dict(count=90, label="90D", step="day", stepmode="backward"),
+                                     dict(count=120, label="120D", step="day", stepmode="backward"),
+                                     dict(count=150, label="150D", step="day", stepmode="backward"),
+                                     dict(step="all")
+                                 ])
+                             ))
+            st.plotly_chart(fig)
+            
+#         ma = st.slider('Slide to select days for Moving Average', min_value=5, max_value=100)
+#         df1['MA'] = df1.Close.rolling(ma).mean()
+        
+#         fig = go.Figure(data=[go.Candlestick(x=df1.index,
+#                                      open=df1['Open'],
+#                                      high=df1['High'],
+#                                      low=df1['Low'],
+#                                      close=df1['Close'],
+#                                      name='Market Data'),
+#                       go.Scatter(x=list(df1.index), y=list(df1.MA), line=dict(color='blue', width=2), name='Moving Average')])
+
+#         fig.update_layout(
+#             title='Live share price evolution',
+#             yaxis_title='Stock Price (USD per shares)', width=850, height=550)
+
+#         fig.update_xaxes(rangeslider_visible=True,
+#                          rangeselector=dict(
+#                              buttons=list([
+#                                  dict(count=30, label="30D", step="day", stepmode="backward"),
+#                                  dict(count=60, label="60D", step="day", stepmode="backward"),
+#                                  dict(count=90, label="90D", step="day", stepmode="backward"),
+#                                  dict(count=120, label="120D", step="day", stepmode="backward"),
+#                                  dict(count=150, label="150D", step="day", stepmode="backward"),
+#                                  dict(step="all")
+#                              ])
+#                          ))
+#         st.plotly_chart(fig)
 
         # ma = st.slider('Slide to select days for Moving Average', min_value=5, max_value=100)
         # df1 = yf.download(tickers=companies[company], period='1460d', interval='1d')
