@@ -23,7 +23,7 @@ def main():
                               ])
         fig.update_layout(
             title='Nifty 50 volatility  in 2020',
-            yaxis_title='Stock Price (in Rs.)')
+            yaxis_title='Stock Price (in Rs.)', width=800, height=550)
 
         fig.update_xaxes(rangeslider_visible=True,
                          rangeselector=dict(
