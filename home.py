@@ -2,7 +2,6 @@ import urllib
 import pandas as pd
 import numpy as np
 import streamlit as st
-import yfinance as yf
 import plotly.graph_objs as go
 import matplotlib.pyplot as plt
 plt.style.use('bmh')
@@ -13,8 +12,9 @@ def main():
     if box == "Stock Market Info":
         readme_text = st.markdown(get_file_content_as_string("README.md"))
     elif box == "Covid-19 impact":
-        df1 = yf.download(tickers="NIFTY 50", start="2020-01-01", end="2020-12-31")
-        fig = go.Figure(data=[go.Candlestick(x=df1.index,
+        st.header("Impact of COVID-19 on Indian Stock Market")
+        df1 = pd.read_csv("data nifty50.csv")
+        fig = go.Figure(data=[go.Candlestick(x=df1['Date'],
                                              open=df1['Open'],
                                              high=df1['High'],
                                              low=df1['Low'],
@@ -22,8 +22,8 @@ def main():
                                              name='Market Data')
                               ])
         fig.update_layout(
-            title='Live share price evolution',
-            yaxis_title='Stock Price (USD per shares)', width=850, height=550)
+            title='Nifty 50 volatility  in 2020',
+            yaxis_title='Stock Price (in Rs.)', width=850, height=550)
 
         fig.update_xaxes(rangeslider_visible=True,
                          rangeselector=dict(
@@ -37,6 +37,7 @@ def main():
                              ])
                          ))
         st.plotly_chart(fig)
+        readme_text_1 = st.markdown(get_file_content_as_string("Covid.md"))
 ###########################################################################
 
 def get_file_content_as_string(path):
