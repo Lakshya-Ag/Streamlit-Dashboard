@@ -13,8 +13,8 @@ def main():
         readme_text = st.markdown(get_file_content_as_string("README.md"))
     elif box == "Covid-19 impact":
         st.header("Impact of COVID-19 on Indian Stock Market")
-        df1 = pd.read_csv("data nifty50.csv")
-        fig = go.Figure(data=[go.Candlestick(x=df1['Date'],
+        df1 = pd.read_csv("data nifty50.csv", index_col='Date', parse_dates=True)
+        fig = go.Figure(data=[go.Candlestick(x=df1.index,
                                              open=df1['Open'],
                                              high=df1['High'],
                                              low=df1['Low'],
