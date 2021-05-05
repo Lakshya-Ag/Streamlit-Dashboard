@@ -1,8 +1,9 @@
-### Crash in Stock Market due to Coronavirus
+## Crash in Stock Market due to Coronavirus
 
 The volatility in the stock market could have been noticed from the start of the year 2020 but it came in notice only after the month of January, when the first covid case was discovered in the country. But corona virus was not the only reason which made the market crash. There were several international and local factors which impacted the market in that 2-3 month time period. Below mentioned are some of the most important dates when stock market crashed noticably, giving us one of the worst crashes in the stock market history of India.
 
 #### Chronology of the Stock market crash 2020
+
 
 `1st February 2020`
 
