@@ -6,6 +6,10 @@ A stock market, equity market, or share market is the aggregation of buyers and 
 
 A stock exchange is an exchange or bourse where stockbrokers and traders can buy and sell shares (equity stock), bonds, and other securities. Many large companies have their stocks listed on a stock exchange. This makes the stock more liquid and thus more attractive to many investors. The exchange may also act as a guarantor of settlement. These and other stocks may also be traded "over the counter" (OTC), that is, through a dealer. Some large companies will have their stock listed on more than one exchange in different countries, so as to attract international investors.
 
+## What are shares?
+
+A company’s capital is divided into small equal units of a finite number. Each unit is known as a share. In simple terms, a share is a percentage of ownership in a company or a financial asset. Investors who hold shares of any company are known as shareholders. Shares are units of equity ownership interest in a corporation that exist as a financial asset providing for an equal distribution in any residual profits, if any are declared, in the form of dividends. Shareholders may also enjoy capital gains if the value of the company rises.
+
 ## Stock Market Prediction
 
 Stock market prediction is the act of trying to determine the future value of a company stock or other financial instrument traded on an exchange. The successful prediction of a stock's future price could yield significant profit. The efficient-market hypothesis suggests that stock prices reflect all currently available information and any price changes that are not based on newly revealed information thus are inherently unpredictable. Others disagree and those with this viewpoint possess myriad methods and technologies which purportedly allow them to gain future price information.
